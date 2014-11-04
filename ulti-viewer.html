@@ -27,12 +27,16 @@
 <link rel="import" href="progress-text.html">
 <link rel="import" href="overlay-note.html">
 
+<link rel="import" href="object-rotate-plugin.html">
+
 <polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
 on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}"
 >
     <template>
       <link rel="stylesheet" type="text/css" href="ulti-viewer.css">
       <!--controls overlay-->
+
+      <object-rotate-plugin> </object-rotate-plugin>
 
       <view-settings autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}" fullScreen="{{fullScreen}}"
       showControls="{{showControls}}" showAnnotations="{{showAnnotations}}">
@@ -70,7 +74,7 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       <three-js id="threeJs" 
       selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" highlightedObject="{{highlightedObject}}"
       >
-          <three-stats id="stats" show=false channel='render'></three-stats>
+          <three-stats id="stats" show=true channel='render'></three-stats>
           <tween-js></tween-js>
           
           <three-js-webglRenderer id="webglRenderer"></three-js-webglRenderer>

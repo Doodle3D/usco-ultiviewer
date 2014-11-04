@@ -1,0 +1,1 @@
+vulcanize ulti-viewer.html --csp --inline --strip --output embed/ulti-viewer-embed.html
