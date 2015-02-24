@@ -1,0 +1,28 @@
+<script src="webcomponents.min.js"></script>
+<link rel="import" href="ulti-viewer-light.html">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+html, body, ulti-viewer-light {
+    margin: 0;
+    position: absolute;
+    height: 100%;
+    width:100%;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+</style>
+
+<ulti-viewer-light></ulti-viewer-light>
+
+<script>
+  window.addEventListener('polymer-ready', function() {
+    var viewer = document.querySelector('ulti-viewer-light');
+    console.log('viewer:',viewer);
+    viewer.loadMesh('http://localhost/ulti/gear.stl');
+  });
+</script>

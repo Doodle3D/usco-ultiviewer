@@ -1,0 +1,1 @@
+vulcanize ulti-viewer-light.html --inline --csp --output embed-light/ulti-viewer-light.html

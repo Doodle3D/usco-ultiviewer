@@ -1,0 +1,35 @@
+<link rel="import" href="components/polymer/polymer.html">
+<link rel="import" href="components/three-js/three-js.html">
+<link rel="import" href="components/usco-client-deps/usco-client-deps.html">
+<link rel="import" href="components/usco-asset-manager/usco-asset-manager.html">
+<link rel="import" href="components/usco-stl-parser/stl-parser.html">
+<link rel="import" href="components/usco-xhr-store/xhr-store.html">
+<link rel="import" href="components/usco-desktop-store/desktop-store.html">
+
+
+<polymer-element name="ulti-viewer-light">
+<template>
+
+  <usco-client-deps> </usco-client-deps>
+  <usco-asset-manager id="assetManager" logLevel="warn">
+    <xhr-store></xhr-store>
+    <desktop-store> </desktop-store>
+    <stl-parser></stl-parser>
+  </usco-asset-manager>
+
+  <three-js id="threeJs">
+    <three-stats id="stats" show="true" channel="render"></three-stats>
+    <three-js-webglRenderer id="webglRenderer"></three-js-webglRenderer>
+    <three-js-scene name="main" id="activeScene" active pickable>
+      <three-directionalLight castShadow onlyShadow intensity=0.2 pos=[150,150,1500]>  </three-directionalLight>
+      <three-hemisphereLight color="0xffffEE" gndColor="0xffffEE" pos="[0, 1200, 1500]" intensity=0.6></three-hemisphereLight>
+      <three-ambientLight color="0x252525" intensity=3> </three-ambientLight>
+      <shadow-plane up=[0,0,1]> </shadow-plane>
+    </three-js-scene>
+  </three-js>
+
+</template>
+<script src="ulti-viewer-light.js"></script>
+</polymer-element>
+
+
