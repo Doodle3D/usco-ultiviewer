@@ -23,6 +23,10 @@ html, body, ulti-viewer-light {
   window.addEventListener('polymer-ready', function() {
     var viewer = document.querySelector('ulti-viewer-light');
     console.log('viewer:',viewer);
-    viewer.loadMesh('http://localhost/ulti/gear.stl');
+    setTimeout(function() {
+        viewer.loadMesh('https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl');
+        // viewer.loadMesh('http://localhost/ulti-light/gear.stl');
+    },1000);
+
   });
 </script>

@@ -40,8 +40,8 @@ Polymer('ulti-viewer-light', Polymer.mixin({
     console.log('sceneName',sceneName);
     console.log('options',options);
     console.log('this.threeJs',this.threeJs);
-
     console.log('object.updateMatrixWorld',object.updateMatrixWorld);
+
     this.threeJs.addToScene(object, sceneName, options);
 
     console.log('after addToScene');
@@ -57,17 +57,9 @@ Polymer('ulti-viewer-light', Polymer.mixin({
     function formatResource(resource) {
       console.log('formatResource',resource);
       var shape = resource.data;
-
-      console.log(shape.geometry);
-      
-      // var geometry = shape.geometry;
-      // if(geometry)
-      // {
-      //   geometry.computeBoundingBox();
-      //   geometry.computeBoundingSphere();
-      //   geometry.computeVertexNormals();//needed at least for .ply files
-      //   geometry.computeFaceNormals();
-      // }
+      //shape.computeBoundingSphere();
+      //shape.computeVertexNormals();
+      //shape.computeFaceNormals();
       return shape;
     }
 
@@ -99,7 +91,7 @@ Polymer('ulti-viewer-light', Polymer.mixin({
     return resourcePromise
       .then(this.addToScene.bind(this), onDisplayError)
       .then(afterAdded)
-      .fail(function() {console.log('fail',arguments)});
+      .fail(function(err) { console.error(err); });
     
   }
 

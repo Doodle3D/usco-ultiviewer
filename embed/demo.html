@@ -40,11 +40,11 @@
         var ultiViewer = document.querySelector('ulti-viewer');
         console.log("ultiViewer",ultiViewer);
         
-        var currentUrl = window.location.origin;
+        // var currentUrl = window.location.origin;
         var modelUrl = "https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl";
-        modelUrl = currentUrl+"/demo-data/UM2CableChain_BedEnd.STL";
+        // modelUrl = currentUrl+"/demo-data/UM2CableChain_BedEnd.STL";
         
-        //setTimeout(function(){ultiViewer.loadMesh(modelUrl,{display:true});},1000 )
+        setTimeout(function(){ultiViewer.loadMesh(modelUrl,{display:true});},1000 )
     });
   </script>  
 </body>
