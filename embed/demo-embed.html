@@ -37,27 +37,10 @@
         
         var currentUrl = window.location.origin;
         var modelUrl = "https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl";
-        //modelUrl = currentUrl+"/demo-data/UM2CableChain_BedEnd.STL";
-
-        // console.log();
-
-
+        modelUrl = currentUrl+"/demo-data/UM2CableChain_BedEnd.STL";
         
-        setTimeout(function(){
-          ultiViewer.loadMesh(modelUrl,{display:true});
-        },1000 )
-
-        setTimeout(function() {
-          var ultiViewer = document.querySelector('ulti-viewer');
-          ultiViewer.rotateSelection('y',90);
-          console.log('rotated')
-        },10000)
+        setTimeout(function(){ultiViewer.loadMesh(modelUrl,{display:true});},1000 )
     });
-
-     
-
-  </script>
-
-  <button onclick="rotate()">test</button>
+  </script>  
 </body>
 </html>
