@@ -1,0 +1,397 @@
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/core-selector/core-selector.html">
+
+<!--FIXME: not 100% sure about library here -->
+<script src='../components/js-quantities/src/quantities.js'></script>
+
+<polymer-element name="simple-bom" attributes="selectedObject selectedObjects bom show debug"
+on-keyup="{{keyUpHandler}}" on-keydown="{{keyDownHandler}}"
+>
+  <template>
+    <style>
+      :host{
+        position:absolute;
+        top: 45px;
+        right: 20px;
+        z-index:15;
+        background:white;
+        font-size:0.8em;
+      }
+      
+      table.dataTable {
+          display: table;
+          width: 100%;
+      }
+      
+      table{
+        font-size:0.9em;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-collapse: collapse;
+      }
+      /*table tbody, table thead
+      {
+          display: block;
+      }
+      
+      table tbody 
+      {
+         overflow-y: auto;
+         overflow-x: hidden;
+         max-height: 300px;
+      }
+      
+      table thead 
+      {
+        width:100%;
+      }*/
+      
+      th{
+        padding: 5px;
+        min-width:50px;
+      }
+      td{
+        overflow:auto;
+        max-width:250px;
+        padding: 5px;
+        cursor:pointer;
+      }
+      tr{
+        text-align: center;
+        border:none;
+      }
+     
+    .bomEntry.core-selected {
+      background: #ffd200;/*EMPHASIS COLOR*/
+    }
+    
+    .bomEntry.core-selected td{
+      font-weight:bold;
+    }
+    
+    .bomEntry:hover td{
+      /*font-weight:bold;*/
+      background: rgba(255, 210, 0, 0.28);
+    }
+    
+    .bomEntryInstance{
+      background: #fff;
+    }
+    .bomEntryInstance:hover{
+      cursor: pointer;
+    }
+    .bomEntryInstance.core-selected{
+      background: #f0f;
+    }
+    
+    #wrapper{
+      overflow-y: auto;
+      overflow-x: hidden;
+       max-height: 300px;
+    }
+    
+    </style>
+    <section id="wrapper" tabindex="0">
+       <!--
+       FIXME: why does template if="{{show}}" break core-selector behaviour ?
+       WE DO NOT want components like the bom view to update when not visible
+       if="{{show}}"
+       
+       TODO:  correct filter & formatting, not the mess of templating we have now
+       
+       
+        <table>
+          <core-selector target="{{$.gnak}}" 
+          selected="{{sdfs}}" ></core-selector>
+          
+          <tbody id="gnak">
+            <tr class="bomEntry">
+              <td>
+                One
+              </td>
+            </tr>
+            <tr class="bomEntry">
+              <td>
+                Two
+              </td>
+            </tr>
+            <tr class="bomEntry">
+              <td>
+                Three
+              </td>
+            </tr>
+          </tbody>
+       </table>-->
+    
+       <core-selector target="{{$.bomEntries}}" 
+        selected="{{selectedBomEntries}}" multi> </core-selector>
+    
+       <table hidden?="{{!show}}" class="dataTable">
+        <thead>
+          <tr>
+            <template repeat="{{header in headers}}">
+              <th>
+                [[header | capitalize]]
+              </th>
+            </template>
+          </tr>
+        </thead>
+       
+        <tbody id="bomEntries">
+         <template repeat="{{bomEntry in bom}}">
+           
+           <tr class="bomEntry">
+            <template repeat="{{header in headers}}">
+              <template if="{{header !== '_instances' && header !== 'implementations' && bomEntry.amount>=minAmount}}">
+                <td>
+                  {{bomEntry[header]}}
+                </td>
+              </template>
+              <template if="{{header === '_instances' && bomEntry.amount>=minAmount}}">
+                <td>
+                   <ul>
+                     <template repeat="{{instance, index in bomEntry._instances}}">
+                      <li class="bomEntryInstance" on-mouseover="{{mouseOverHandler}}" on-tap="{{instanceTapHandler}}"
+                      value="{{index}}"> {{index}} </li>
+                     </template>
+                   <ul>
+                </td>
+              </template>
+              
+              <template if="{{header === 'implementations' && bomEntry.amount>=minAmount}}">
+                <td>
+                   <ul>
+                     <template repeat="{{source in keys(bomEntry.implementations) }}">
+                      <!--<li class="bomEntryInstance" on-mouseover="{{mouseOverHandler}}" on-tap="{{instanceTapHandler}}"
+                      value="{{index}}"> {{index}} </li>-->
+                      <template if="{{source !== 'default'}}">
+                        <!--ONLY display the implementation key if it is not "default"-->
+                        {{source}}:{{bomEntry.implementations[source]}}
+                      </template>
+                      <template if="{{source === 'default'}}">
+                         <!--ONLY display the implementation key if it is not "default"-->
+                         {{bomEntry.implementations[source]}}
+                      </template>
+                     </template>
+                   <ul>
+                </td>
+              </template>
+              
+            </template>
+           </tr>
+           
+         </template>
+       </tbody>
+      </table>
+      
+    </section> 
+    
+  </template>
+  <script>
+  Polymer("simple-bom",{
+    debug:false,
+    show:true,
+  
+    selectedBomEntry:null,
+    selectedInstanceIndex:null,
+    selectedBomEntryInstance:null,
+    
+    selectedBomEntries:null,
+    selectedInstanceIndices:null,
+    selectedBomEntryInstances:null,
+    
+    /**
+     * headers of data to show
+     * 
+     * @attribute headers
+     * @type array
+    */
+    headers:["id","name", "amount", "unit", "version", "implementations","_instances"],//"url","_instances"],
+    
+    /**
+     * what type to display a given field as, default to text
+     * 
+     * @attribute types
+     * @type object
+    */
+    types:{"amount":"number", "unit":"list"},
+    /**
+     * hide any entry with count lower than this
+     * 
+     * @attribute minAmount
+     * @type float
+    */
+    minAmount: 1,
+    
+    /**
+     * list of all available measurement units FIXME: move this elsewhere
+     * 
+     * @attribute _units
+     * @type array
+    */
+    _units:["mm"],
+    
+    /*
+    simple-bom
+    
+    - selecting a mesh in 3D view should select (in BOM view)
+      * its bom entry (one row)
+      * IF instances are listed, its instance
+    
+    - selecting MULTIPLE MESHES in 3D view should do the same as above, for all selections
+    
+    
+    - selecting a bom entry in BOM view should:
+      * select all instances   
+    
+    */
+    //attribute change handlers
+    created:function(){
+      //var units = Qty.getKinds();
+      //console.log("UNITS", units);
+    },
+    bomChanged:function(oldBom, newBom){
+      if( this.debug ) console.log("bom changed", this.bom);
+    },
+    showChanged:function(oldShow, newShow){
+      //console.log("show bom screen changed", this.show);
+      if(newShow){
+        //console.log("BOM", this.bom);
+        //FIXME attempted workaround for failing core selector after 
+        //this.selectedInstanceIndex = -1;
+        //selected="{{selectedBomEntry}}"        
+        //this.selectedBomEntry = null;
+        //this.$.entrySelector.target=null;
+        //this.$.entrySelector.target = this.$.bomEntries;
+      }
+    },
+    selectedObjectsChanged:function(oldSelObjects, newSelObjects){
+      //console.log("selectedObjects", this.selectedObjects );
+      function lookUpBomEntries( selectedObjects, bomEntriesIdx, bom ){
+        var selectionCandidates = [];
+        for(var i=0;i<selectedObjects.length;i++)
+        {
+          var selection = selectedObjects[i];
+          if(!selection || !selection.userData.part) {
+            //this.selectedBomEntry = -1;
+            continue;
+          }
+          var bomId = selection.userData.part.bomId;
+          
+          //only push if not already a part of current candidates
+          if( selectionCandidates.indexOf( bomId ) === -1 )
+          {
+            selectionCandidates.push( bomId );
+          }
+        }
+        
+        return selectionCandidates;
+      }
+      var currentBomEntries = this.selectedBomEntries;
+      var newSelObjects = newSelObjects;
+      if(!currentBomEntries){
+        currentBomEntries = [];
+      }
+      if(!newSelObjects){
+        newSelObjects = [];
+      }
+      
+      
+      var candidates = lookUpBomEntries( newSelObjects, currentBomEntries, this.bom );
+      //console.log("candidates",candidates);
+      
+      if(candidates.sort().join(',') !== currentBomEntries.slice(0).sort().join(',')){
+          //console.log("different !!");
+          this.selectedBomEntries = candidates;
+      }
+    },
+    
+    selectedBomEntriesChanged:function(){
+      //console.log("selectedBomEntries", this.selectedBomEntries);
+      //reset selectedInstances indices
+      this.selectedInstanceIndices = [-1];
+      
+      function lookUpInstanceRefs( bomEntriesIdx, bomEntryInstancesIdx, bom ){
+        var selectionCandidates = [];
+        for(var i=0; i<bomEntriesIdx.length;i++)
+        {
+          var partIndex = bomEntriesIdx[i];
+          var instIndex = -1;//TODO implement
+          
+          if(! bom[ partIndex ] ) continue;
+          if(  bom[ partIndex ]._instances.length == 0 ) continue;
+          
+          if( instIndex == -1 ) //-1 means: select all
+          {
+            selectionCandidates = selectionCandidates.concat( bom[ partIndex ]._instances );
+          }
+          else{
+            var selectionCandidate = bom[ partIndex ]._instances[ instIndex ];
+            selectionCandidates.push( selectionCandidate )
+          }
+        }
+        return selectionCandidates;
+      }
+      
+      this.selectedObjects = lookUpInstanceRefs( this.selectedBomEntries,null, this.bom )
+    },
+    
+    //event handlers
+    mouseOverHandler:function( e ){
+    },
+    instanceTapHandler:function( e, detail, sender ){
+      //console.log("bom entry instance tapped", e, detail, sender, sender.value);
+      this.selectedInstanceIndex = sender.value;
+    },
+    //helpers
+    _makeEntryAndInstanceKeys:function(){
+      var instanceIndices = [];
+      if( this.selectedBomEntries.length == 1 )
+      {
+        instanceIndices = this.selectedInstanceIndices;
+      }
+      this.selectedBomEntryInstances = {entries:this.selectedBomEntries, instances:instanceIndices};
+    },
+    
+    _processSelectedMesh:function( mesh ){
+      if(this.debug) console.log("processing mesh", mesh );
+      
+      var selection = mesh;
+      if(!selection || !selection.userData.part) {
+        this.selectedBomEntry = -1;
+        return;
+      }
+      var bomId = selection.userData.part.bomId;
+      this.selectedBomEntry = bomId;
+    },
+    
+    //FIXME: are these needed ?
+    _resetSelection:function(){
+      //to reset correct selection after unbinding/hiding
+      // (why is it lost in the first place ?
+    },
+    //
+    keys: function(input) {
+      return Object.keys(input);
+    }, 
+    //FIXME: comes from , re use that
+    capitalize: function (string) {
+	    string = string.toLowerCase();
+	    return string.charAt(0).toUpperCase() + string.slice(1);
+    },
+    /*
+    keyDownHandler:function(event)
+    {//overidable method stand in
+      this.keys[event.keyCode] = true;
+      this.shiftPress = event.shiftKey;
+      console.log("key down")
+    },
+    keyUpHandler:function(event)
+    {//overidable method stand in
+      this.keys[event.keyCode] = false;
+      this.shiftPress = event.shiftKey;
+      console.log("key up")
+    },*/
+
+  });
+  </script>
+</polymer-element>  

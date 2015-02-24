@@ -89,6 +89,7 @@ removing all resouces, and flush cache
     
     ultiViewer.clearResources({clearCache:true});
 
+
 Licence
 =======
-MIT
+AGPL

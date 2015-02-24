@@ -1,0 +1,233 @@
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/paper-input/paper-input.html">
+<link rel="import" href="../components/paper-input/paper-input-decorator.html">
+<link rel="import" href="../components/paper-input/paper-autogrow-textarea.html">
+
+<polymer-element name="properties-ui" attributes="selectedObject selectedObjects selectedEntity">
+  <template>
+      <template if="{{selectedObject || selectedEntity }}">
+        <ui-base>
+          <div style="height:100%;width:100%">
+            &nbsp 
+            <template if="{{! _entityIsAnnotation  }}">
+              <core-tooltip label="Color" position="top"> 
+                <input type="color"  step="0.1" value="{{selectedObject.material.color | colorConvert}}"/> 
+              </core-tooltip>
+              |
+              <core-tooltip label="Position" position="top"> 
+                p: <input type="number" step="0.1" value="{{selectedObject.position.x | toFixed(2)}}" />
+                <input type="number" step="0.1" value="{{selectedObject.position.y | toFixed(2)}}"/>
+                <input type="number" step="0.1" value="{{selectedObject.position.z | toFixed(2)}}"/>
+              </core-tooltip>
+              |
+              <core-tooltip label="Rotation" position="top">  
+                r: <input type="number" step="0.1" value="{{selectedObject.rotation.x | angleConvert | toFixed(2)}}"/>
+                <input type="number" step="0.1" value="{{selectedObject.rotation.y | angleConvert | toFixed(2)}}"/>
+                <input type="number" step="0.1" value="{{selectedObject.rotation.z | angleConvert | toFixed(2)}}"/>
+              </core-tooltip>
+              |
+              <core-tooltip label="Scale" position="top">  
+                s: <input type="number" step="0.1" value="{{selectedObject.scale.x | toFixed(2)}}"/>
+                <input type="number" step="0.1" value="{{selectedObject.scale.y | toFixed(2)}}"/>
+                <input type="number" step="0.1" value="{{selectedObject.scale.z | toFixed(2)}}"/>
+              </core-tooltip>
+              |
+              <core-tooltip label="Dimensions" position="top">  
+                d: <input type="number" step="0.1" min="0" value="{{meshSize.l | scaleConvert('l') | toFixed(2)}}"/>
+                <input type="number" step="0.1" min="0" value="{{meshSize.w | scaleConvert('w') | toFixed(2)}}"/>
+                <input type="number" step="0.1" min="0" value="{{meshSize.h | scaleConvert('h') | toFixed(2)}}"/>
+              </core-tooltip>
+              |
+              <span style="font-size:0.8em">
+                <template if="{{selectedObject.geometry}}">
+                   faces:{{selectedObject.geometry.attributes.position.length/3}} &nbsp
+                   vertices:{{selectedObject.geometry.attributes.position.length}}
+                </template>
+              </span>
+            |
+            </template>
+            <span style="font-size:0.8em">
+              {{displayName}}
+              <template if="{{ _entityIsAnnotation }}">
+                <span style="font-size:1.2em">
+                &nbsp <paper-input value="{{selectedEntity.title}}" label="Title" floatingLabel
+                style="position:relative;bottom:15px;color: #3c627a;" on-keydown="{{blockInput}}"
+                ></paper-input>
+                &nbsp <paper-input value="{{selectedEntity.notes}}" label="Notes" floatingLabel multiline
+                style="position:relative;bottom:15px;color: #3c627a;" on-keydown="{{blockInput}}"
+                ></paper-input>
+                
+                <!--<paper-input-decorator label="Notes" floatingLabel 
+                on-keydown="{{blockInput}}" style="position:relative;bottom:15px;color: #3c627a;">
+                  <paper-autogrow-textarea>
+                    <textarea></textarea>
+                  </paper-autogrow-textarea>
+                </paper-input-decorator>-->
+                
+                
+                &nbsp <paper-input value="{{selectedEntity.varName | camelCase}}" label="Variable" floatingLabel
+                style="position:relative;bottom:15px;color: #3c627a;" on-keydown="{{blockInput}}"
+                ></paper-input>
+                <!--Title:<input type="text" value="{{selectedObject.userData.data.title}}" ></input>
+                Notes:&nbsp <input type="text" value="{{selectedObject.userData.data.notes}}" on-keydown="{{blockInput}}"></input>-->
+                </span>
+              </template>
+            </span>
+          </div>
+        </ui-base>  
+      </template>
+  </template>
+<script>
+Polymer("properties-ui",{
+  displayName : "",
+  degreeAngles:true,
+  meshSize: {w:0,l:0,h:0},
+  
+  selectedEntity:null,
+  selectedObject:null,
+  
+  _entityIsAnnotation :false,
+  
+  //TODO: add calculation of geometric data within a hierarchy
+  selectedObjectChanged:function(){
+    if(this._entityIsAnnotation){
+      if(this.selectedEntity && this.selectedEntity.type=="note"){
+        this.displayName = "Note"; return;
+      }
+    }
+    if(!this.selectedObject) {this.displayName = ""; return}
+    
+    if( this.selectedObject.userData.part ){
+      this.displayName = this.selectedObject.userData.part.name;
+    }else{
+      this.displayName = this.selectedObject.name;
+    }
+    this.meshSize = this.getAbsoluteSize();
+  },
+  selectedEntityChanged:function(){
+    this._entityIsAnnotation = (this.selectedEntity && "notes" in this.selectedEntity && this.selectedEntity.notes!==null) ;
+    
+    if(this._entityIsAnnotation){
+      if(this.selectedEntity.type=="note"){
+        this.displayName = "Note"; return;
+      }
+    }
+  },
+  observe:{
+    "selectedObject.scale.x":"selectedObjectChanged",
+    "selectedObject.scale.y":"selectedObjectChanged",
+    "selectedObject.scale.z":"selectedObjectChanged",
+  },
+  //helpers
+  blockInput:function( event ){
+    event.stopPropagation();
+    return false;
+  },
+  getAbsoluteSize:function(){
+    //console.log("getting absolute size");
+    var size = {w:0,l:0,h:0};
+    if(!this.selectedObject) return this.selectedObject;
+    
+    var bbox = new THREE.Box3().setFromObject( this.selectedObject );
+    var length = ( (bbox.max.x-bbox.min.x).toFixed(2) )/1; // division by one to coerce to number
+    var width  = ( (bbox.max.y-bbox.min.y).toFixed(2) )/1;
+    var height = ( (bbox.max.z-bbox.min.z).toFixed(2) )/1;
+    
+    size.w = width;
+    size.l = length;
+    size.h = height;
+    return size;
+  },
+  //filters
+  //round to 2 decimals
+  toFixed:{
+    toDOM: function(value, precision) {
+      if(!value) return "0";
+      return value.toFixed(precision);
+    },
+    toModel: function(value) {
+      return parseFloat( value );
+    }
+  },
+  //convert between radians and degrees
+  angleConvert: {
+   toDOM: function(value, precision) {
+      if(!value) return 0;
+      if(this.degreeAngles) return value*180/Math.PI;
+      return value;
+    },
+    toModel: function(value) {
+      if(!value) return 0;
+      if(this.degreeAngles) return parseFloat( value )*Math.PI/180;
+      return value;
+    }
+  },
+  //convert between scale and absolute size
+  scaleConvert: {
+     toDOM: function(value, axis) {
+      if(!value) return 0;
+      return this.meshSize[axis];
+    },
+    toModel: function(value, axis) {
+      //TODO : do the "safing" of values better( no divisions by zero, nothing under 0 )
+      var minScale = 0.0001;
+      if(!value) return minScale;
+      
+      if(value <= 0) value = minScale;
+      //var foo = this.meshSize[axis];
+      var map = {"l":"x","w":"y","h":"z"};
+      var mapped = map[axis];
+      var axisScale = this.selectedObject.scale[ mapped ];
+      if( axisScale <= minScale ) axisScale = minScale;
+      
+      var scaling = 1/ axisScale;
+      
+      var meshSize = this.meshSize[axis];
+      if(meshSize <= minScale) meshSize = minScale;
+      
+      var originalSize = meshSize * scaling;
+      var targetScale = value/(originalSize);
+      
+      //console.log("axis", axis,"mappedaxis",mapped,"originalSize",originalSize, "targetSize", value);
+      //console.log("scaling",scaling,"targetScale",targetScale);
+      
+      if(targetScale <= minScale) targetScale = minScale;
+      
+      if(this.meshSize[axis] <= minScale) this.meshSize[axis] = minScale;
+      
+      this.selectedObject.scale[mapped] = targetScale;
+      return targetScale;
+    }
+  },
+  //convert between html hex color and three.js color
+  colorConvert: {
+    toDOM: function(value) {
+      if(!value) return "#ffffff";
+      var hexValue = "#"+value.getHexString()
+      return hexValue;
+    },
+    toModel: function(value) {
+      return new THREE.Color(value);
+    }
+  },
+  //turns a string into a camelcase string (for variable names)
+  camelCase:{ 
+    toDOM: function(value) {
+      if(!value) return "";
+      return value.toLowerCase().replace(/-(.)/g, function(match, group1) {
+          return group1.toUpperCase();
+      });
+    },
+    toModel: function(value) {
+      if(!value) return "";
+      return value.toLowerCase().replace(/-(.)/g, function(match, group1) {
+          return group1.toUpperCase();
+      });
+    }
+   
+  }
+
+});
+</script>
+</polymer-element>
+

@@ -1,0 +1,165 @@
+<link rel="import" href="../components/polymer/polymer.html">
+
+<link rel="import" href="usco-transforms-base.html">
+
+<polymer-element name="usco-transforms-ui" attributes="activeTool controls selectedObject" extends="usco-transforms-base">
+  <template>
+    <section>
+      <core-selector selected="{{activeTool}}" valueattr="value" on-core-activate="{{controlActivated}}">
+         <tooltip-shadow-button label="move" value="translate" icon="open-with" >
+         </tooltip-shadow-button>
+      
+         <tooltip-shadow-button label="rotate" value="rotate" icon="3d-rotation" 
+         style="position: absolute;left: 40px; top: 0px;">
+         </tooltip-shadow-button>
+         
+         <tooltip-shadow-button label="scale" value="scale" icon="av:shuffle" 
+         style="position: absolute;left: 80px; top: 0px;">
+         </tooltip-shadow-button>
+         
+         <!--
+         <tooltip-dropdown-button label="mirror" value="mirror" icon="image:compare"
+         style="position: absolute;left: 120px; top: 0px;">
+            <core-selector selected="{{mirrorAxis}}" valueattr="value">
+              <paper-item value="x" 
+              on-tap="{{mirrorAlongX}}" on-mouseover="{{mirrorPreviewAlongX}}"
+              on-mouseleave="{{onMirrorMouseLeave}}"
+              >X</paper-item>
+              <paper-item value="y" 
+              on-tap="{{mirrorAlongY}}" on-mouseover="{{mirrorPreviewAlongY}}"
+              on-mouseleave="{{onMirrorMouseLeave}}"
+              >Y</paper-item>
+              <paper-item value="z" 
+              on-tap="{{mirrorAlongZ}}" on-mouseover="{{mirrorPreviewAlongZ}}"
+              on-mouseleave="{{onMirrorMouseLeave}}"
+              >Z</paper-item>
+            </core-selector>
+         </tooltip-dropdown-button>
+         
+         <tooltip-dropdown-button label="align" value="align" icon="editor:vertical-align-center"
+         style="position: absolute;left: 160px; top: 0px;">
+            <paper-item>Vertical</paper-item>
+            <paper-item>Horizontal</paper-item>
+            <paper-item>Center Along x,y,z</paper-item>
+            <paper-item>Center x</paper-item>
+            <paper-item>Center y</paper-item>
+            <paper-item>Center z</paper-item>
+         </tooltip-dropdown-button>-->
+         
+         <!--
+         <ui-base value="mirror" style="position: absolute;left: 120px; top: 0px;">
+          <core-tooltip label="mirror" position="bottom">  
+                <x-trigger icon="image:compare" >
+                <paper-dropdown class="dropdown">
+                  <div class="menu"> 
+                    <paper-item>X</paper-item>
+                    <paper-item>Y</paper-item>
+                    <paper-item>Z</paper-item>
+                  </div>
+                </paper-dropdown>
+              </x-trigger>
+          </core-tooltip>
+         </ui-base>-->
+          <!--<paper-menu-button>
+                <paper-icon-button icon="image:compare" noink></paper-icon-button>
+         
+
+         
+         <ui-base value="align" style="position: absolute;left: 160px; top: 0px;">
+          <core-tooltip label="align" position="bottom">  
+            <paper-menu-button>
+              <paper-icon-button icon="editor:vertical-align-center" noink></paper-icon-button>
+              <paper-dropdown class="dropdown">
+                <core-menu class="menu">
+                  <paper-item>Vertical</paper-item>
+                </core-menu>
+              </paper-dropdown>
+            </paper-menu-button>
+          </core-tooltip>
+         </ui-base>-->
+       </core-selector>
+    </section> 
+  </template>
+<script>
+Polymer("usco-transforms-ui",{
+  effectPreviewModel : null,
+  
+  controlActivated:function(e, detail){
+    //this is used to toggle a specific control on/off
+    //FIXME: there must be a cleaner way to to this...
+    var nValue = detail.item.attributes[1].value;
+    //console.log("nValue",nValue, this.prevTool);
+    if( nValue === this._prevTool)
+    {
+      this.activeTool = "";
+    }else{
+      this._prevTool = nValue;
+    }
+  },
+  
+  //api
+  mirrorAlong:function(axis){
+    //TODO: MOVE OUT this is not client side specific 
+    //console.log("mirroring");
+    var mS = (new THREE.Matrix4()).identity();
+    //set -1 to the corresponding axis
+    if(axis === "x") mS.elements[0] = -1;
+    if(axis === "y") mS.elements[5] = -1;
+    if(axis === "z") mS.elements[10] = -1;
+    //mS.elements[5] = -1;
+    //mS.elements[10] = -1;
+
+    this.selectedObject.applyMatrix(mS);
+    //mesh.applyMatrix(mS);
+    //object.applyMatrix(mS);
+    
+    if(!this.effectPreviewModel) return;
+    this.selectedObject.parent.remove( this.effectPreviewModel );
+    this.effectPreviewModel = null;
+  },
+  mirrorAlongX:function(){
+    this.mirrorAlong("x");
+  },
+  mirrorAlongY:function(){
+    this.mirrorAlong("y");
+  },
+  mirrorAlongZ:function(){
+    this.mirrorAlong("z");
+  },
+  mirrorPreviewAlong:function(axis){
+    //console.log("mirror preview");
+    this.effectPreviewModel = this.selectedObject.clone();
+    var mS = (new THREE.Matrix4()).identity();
+    //set -1 to the corresponding axis
+    if(axis === "x") mS.elements[0] = -1;
+    if(axis === "y") mS.elements[5] = -1;
+    if(axis === "z") mS.elements[10] = -1;
+    
+    this.effectPreviewModel.applyMatrix(mS);
+    
+    this.effectPreviewModel.material = this.selectedObject.material.clone();
+    this.effectPreviewModel.material.color.setHex(0xffd200);//#ffd200
+    this.effectPreviewModel.material.opacity = 0.5;
+    this.effectPreviewModel.material.transparent = true;
+    
+    this.effectPreviewModel.userData.selectable = false;
+    this.selectedObject.parent.add( this.effectPreviewModel );
+    
+  },
+  mirrorPreviewAlongX:function(){
+    this.mirrorPreviewAlong("x");
+  },
+  mirrorPreviewAlongY:function(){
+    this.mirrorPreviewAlong("y");
+  },
+  mirrorPreviewAlongZ:function(){
+    this.mirrorPreviewAlong("z");
+  },
+  onMirrorMouseLeave:function(){
+    this.selectedObject.parent.remove( this.effectPreviewModel );
+    this.effectPreviewModel = null;
+  }
+});
+</script>
+</polymer-element>
+

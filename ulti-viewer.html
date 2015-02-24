@@ -1,5 +1,6 @@
 <link rel="import" href="components/polymer/polymer.html">
 <link rel="import" href="components/core-localstorage/core-localstorage.html">
+<link rel="import" href="components/core-selection/core-selection.html">
 
 <link rel="import" href="components/three-js/three-js.html">
 <link rel="import" href="components/tween-js/tween-js.html">
@@ -7,8 +8,12 @@
 <link rel="import" href="components/three-js-helpers/grid-helper.html">
 <link rel="import" href="components/three-js-helpers/shadow-plane.html">
 <link rel="import" href="components/three-js-helpers/mirror-plane.html">
-<link rel="import" href="components/three-js-helpers/dimensions/dimension-helpers.html">
+<link rel="import" href="components/three-js-helpers/image-plane.html">
+<link rel="import" href="components/three-js-helpers/annotations/dimension-helpers.html">
+<link rel="import" href="components/three-js-helpers/camview-helper.html">
 
+
+<!--core elements-->
 <link rel="import" href="components/usco-client-deps/usco-client-deps.html">
 <link rel="import" href="components/usco-asset-manager/usco-asset-manager.html">
 
@@ -21,28 +26,69 @@
 <link rel="import" href="components/usco-ply-parser/ply-parser.html">
 <link rel="import" href="components/usco-ctm-parser/ctm-parser.html">
 
-<link rel="import" href="view-settings.html">
-<link rel="import" href="view-navigator.html">
-<link rel="import" href="progress-cubic.html">
-<link rel="import" href="progress-text.html">
+<link rel="import" href="components/polymer-gestures/polymer-gestures.html">
+<link rel="import" href="components/core-a11y-keys/core-a11y-keys.html">
+
+<!-- mixins -->
+<link rel="import" href="components/usco-ui-mixins/usco-ui-mixins.html">
+
+<!--2d ui elements-->
+<link rel="import" href="ui-elements/ui-base.html">
+
+<!--io-->
+<link rel="import" href="io/io-ui.html">
+
+<!--transforms-->
+<link rel="import" href="transforms/usco-transforms-ui.html">
+
+<!--annotations-->
+<link rel="import" href="components/three-js-helpers/annotations/usco-annotations.html">
+<link rel="import" href="annotations/usco-annotations-ui.html">
 <link rel="import" href="overlay-note.html">
 
-<polymer-element name="ulti-viewer" attributes="showAxis showIndicators"
-on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragover="{{handleDragOver}}" on-drop="{{handleDrop}}"
->
+<!--object focus/zoom etc effects-->
+<link rel="import" href="components/three-js-helpers/objectEffects/object-effects.html">
+
+<!--various-->
+
+<link rel="import" href="ui-elements/progress-bar.html">
+<link rel="import" href="ui-elements/infos-ui.html">
+<link rel="import" href="ui-elements/fullscreen-toggler2.html">
+<link rel="import" href="ui-elements/settings-ui.html">
+<link rel="import" href="ui-elements/view-navigator.html">
+
+<!--interactions-->
+<link rel="import" href="ui-elements/properties-ui.html">
+<link rel="import" href="ui-elements/grid-ui.html">
+<link rel="import" href="ui-elements/history-ui.html">
+
+<link rel="import" href="bom/user-interactions.html">
+
+
+<!--Design centric stuff, bom etc-->
+<link rel="import" href="design/design-card.html">
+<link rel="import" href="design/design-chip.html">
+<link rel="import" href="design/design-dashboard.html">
+<link rel="import" href="bom/simple-bom.html">
+<link rel="import" href="bom/usco-bom-ui.html">
+
+
+<script src="components/nested-observe/dist/nested-observe.js"></script>
+
+
+<polymer-element name="ulti-viewer" attributes="showAxis showIndicators" tabindex="0">
     <template>
       <link rel="stylesheet" type="text/css" href="ulti-viewer.css">
       <!--controls overlay-->
-
-      <view-settings autoRotate="{{autoRotate}}" showGrid="{{showGrid}}" showAxes="{{showAxes}}" fullScreen="{{fullScreen}}"
-      showControls="{{showControls}}" showAnnotations="{{showAnnotations}}">
-      </view-settings>
       <template if="{{showControls}}">
         <view-navigator controls="{{$.camCtrl}}" camera="{{$.cam}}" autoRotate="{{autoRotate}}"> </view-navigator>
       </template>
       
-      <progress-text resources="{{resources}}">
-      </progress-text>
+      <progress-bar resources="{{resources}}">
+      </progress-bar>
+      
+      <!--FIXME: fake toolbar-->
+      <div id="toolBar"> </div>
       <!--
       <div class="resourceLoader">
         <template repeat="{{resource in resources}}">
@@ -57,53 +103,138 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
         </template>
       </div>-->
       
-      <!-- anotation overlay test -->
-      <template if="{{selectedObject && showAnnotations}}">
+      <!-- <design-card design="{{design}}"> </design-card>
+      <design-chip design="{{design}}"> </design-chip> -->
+      
+      <dia-log id="dialogs"> </dia-log>
+      
+      
+      <simple-bom bom="{{bom}}" selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" show="{{showBOM}}"> </simple-bom>
+      <usco-bom-ui id="bomUI" showBOM="{{showBOM}}"> </usco-bom-ui>
+      
+      <io-ui id="inputOutput" selectedObject="{{selectedObject}}" activeScene="{{$.activeScene.object}}" resources="{{resources}}" viewer="{{$.threeJs}}" partWaiters="{{partWaiters}}" parts="{{parts}}"></io-ui>
+      
+      <properties-ui id="objProps" selectedObject="{{selectedObject}}" selectedEntity="{{selectedEntity}}"> </properties-ui>
+      <grid-ui id="gridProps" grid="{{$.grid}}"> </grid-ui>
+      
+      <settings-ui id="options" autoRotate="{{autoRotate}}" showGrid="{{appSettings.grid.show}}" showAxes="{{showAxes}}"
+      showControls="{{showControls}}" showAnnotations="{{showAnnotations}}" selectionZoom="{{selectionZoom}}"> </settings-ui>      
+      <infos-ui    id="infos" > </infos-ui>
+      <fullscreen-toggler fullScreen="{{fullScreen}}"> </fullscreen-toggler>
+      
+      
+      <!--<core-selector valueattr="value" selected="{{toolCategory}}">-->
+        <!--transforms systems -->
+        <usco-transforms-ui id="transforms" value="transforms" controls="{{transformControls}}" 
+        selectedObject="{{selectedObject}}" activeTool="{{activeTool}}"> 
+        </usco-transforms-ui>
+        
+        <!-- annotations system -->
+        <usco-annotations-ui id="annotations" value="annotations" activeTool="{{activeTool}}"
+        selectedObject="{{selectedObject}}" showAnnotations="{{showAnnotations}}" 
+        activeType="{{activeTool}}" annotations="{{annotations}}" parts="{{parts}}" partWaiters="{{partWaiters}}"
+        > </usco-annotations-ui>
+        <!--<usco-annotations-ui id="annotations" value="annotations" activeTool="{{activeTool}}"> </usco-annotations-ui>-->
+        
+      <!--</core-selector>-->
+      <history-ui id="history"> </history-ui>
+      
+      
+      <!-- anotation overlays (test) -->
+      <template if="{{showAnnotations}}">
         <template repeat="{{annotation,i in annotations}}">
-          <template if="{{selectedObject.userData.part.id == annotation.partId}}">
-            <overlay-note number="{{i}}" note="{{annotation}}"> </overlay-note>
+            <overlay-note number="{{i}}" note="{{annotation}}" selectedEntity="{{selectedEntity}}"> </overlay-note>
            </template>
-        </template>
       </template>
+      
+      
+      <!--
+      <template if="{{selectedObject}}">
+        <div style="position: absolute;
+right: 0px;
+top: 45px;
+z-index: 14;
+height: 100%;
+width: 180px;
+background: #ffd200;
+margin-top: 2px;
+font-size: 0.8em; ">
+        <div style="margin:10px">
+          Name:<br>
+            {{selectedObject.userData.data.title}}
+          <br>
+          Notes:<br>
+            {{selectedObject.userData.data.notes}}
+          </div>
+        </div>
+      </template>-->
+      <!--
+      <button value="toot" on-tap="{{xRayTest}}" style="position:absolute; right:100px; top:200px;z-index:200"> X-rayView test <button>-->
       
       <!--viewer itself-->
       <three-js id="threeJs" 
       selectedObject="{{selectedObject}}" selectedObjects="{{selectedObjects}}" highlightedObject="{{highlightedObject}}"
+      on-objectpicked="{{objectPicked}}"
       >
           <three-stats id="stats" show=false channel='render'></three-stats>
           <tween-js></tween-js>
           
           <three-js-webglRenderer id="webglRenderer"></three-js-webglRenderer>
-          <three-js-scene name="main" active pickable>
+          <three-js-scene name="main" id="activeScene" active pickable>
             <!--<three-pointLight color="0xfFfc7e" intensity=0.8 pos=[100, 150, 200] > </three-pointLight>
-            <three-pointLight color="0xfcfc7e" intensity=0.5 pos=[100, -150, -200]> </three-pointLight>
-            <three-directionalLight castShadow onlyShadow intensity=0.2 pos=[0,50,300]>  </three-directionalLight>-->
-            <three-hemisphereLight color="0xffEEEE" gndColor="0xffEEEE" pos="[0, 1200, 1500]" intensity=0.6></three-hemisphereLight>
-            <three-ambientLight color="0x262525" intensity=3> </three-ambientLight>
+            <three-pointLight color="0xfcfc7e" intensity=0.5 pos=[100, -150, -200]> </three-pointLight>-->
+            <three-directionalLight castShadow onlyShadow intensity=0.2 pos=[150,150,1500]>  </three-directionalLight>
+            <three-hemisphereLight color="0xffffEE" gndColor="0xffffEE" pos="[0, 1200, 1500]" intensity=0.6></three-hemisphereLight>
+            <three-ambientLight color="0x252525" intensity=3> </three-ambientLight>
             <shadow-plane up=[0,0,1]> </shadow-plane>
             <!--<mirror-plane up=[0,0,1]> </mirror-plane>-->
+            <!--<image-plane imgUrl="http://localhost:8080/demo-data/test.png" up=[0,1,0] rot=[0,20,40]> </image-plane>-->
           </three-js-scene>
           <three-js-scene name="helpers" active>
-            <template if="{{showAxes}}">
+            <!--<template if="{{showAxes}}">
               <axis-helper up=[0,0,1]> </axis-helper>
-            </template>
-            <template if="{{showGrid}}">
-              <grid-helper up=[0,0,1]> </grid-helper>
-            </template>
-            
-              <template repeat="{{resource in resources}}">
+            </template>-->
+            <grid-helper id="grid" up=[0,0,1] show="{{appSettings.grid.show}}"> </grid-helper>
+              <!--<template repeat="{{resource in resources}}">
                 <template if="{{!resource.loaded}}">
                   <progress-cubic resource="{{resource}}"> </progress-cubic>
                 </template>
-              </template>
+              </template>-->
           </three-js-scene>
           
           
-          <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView">
-            <three-js-combinedCamera id="cam" pos=[100,50,200] defaultPos=[100,50,200] orientation="{{camOrientation}}" up=[0,0,1]></three-js-combinedCamera>
-            <three-js-orbitControls id="camCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && (!selectedObject || selectRotate)}}" autoRotateSpeed=2> </three-js-orbitControls>
+          <three-js-viewport name="perspective" id="perspectiveView" class="perspectiveView"
+          exScenes="naviScene" on-doubletap="{{doubleTapHandler}}" >
+            <three-js-combinedCamera id="cam" pos=[100,-100,100] defaultPos=[-100,-50,200] orientation="{{camOrientation}}" up=[0,0,1]></three-js-combinedCamera >
+            <three-js-orbitControls id="camCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && (!selectedObject || selectRotate)}}" autoRotateSpeed=2 panSpeed=1.5> </three-js-orbitControls>
+          </three-js-viewport>
+          
+          <!--overlay viewport thingy & scene-->
+          <three-js-scene name="naviScene" active>
+            <camview-helper up=[0,0,1] size=15> </camview-helper>
+            <three-pointLight color="0xffffff" intensity=0.8 pos=[50, 75, 100]> </three-pointLight>
+            <three-hemisphereLight color="0xffffEE" gndColor="0xffffEE" pos="[0, 1200, 1500]" intensity=0.6></three-hemisphereLight>
+          </three-js-scene>
+          
+          
+          <three-js-viewport name="navi" id="naviView" class="naviView" 
+          scenes="naviScene" pickable=false
+          >
+          <!--controlsId="camCtrl"-->
+            <three-js-combinedCamera id="fooCam" pos=[33.33,-33.33,33.33] defaultPos=[100,50,200] orientation="{{camOrientation}}" up=[0,0,1]
+              ortho 
+            ></three-js-combinedCamera>
+            <three-js-orbitControls id="fooCtrl" cameraUp=[0,0,1] autoRotate="{{autoRotate && (!selectedObject || selectRotate)}}" autoRotateSpeed=2 panSpeed=0 zoomSpeed=0> </three-js-orbitControls>
           </three-js-viewport>
         </three-js>
+     
+     <!--advanced observation of arrays, so we can detect changes of item attributes
+     within arrays-->
+      <!--<observe-array-items array="{{annotations}}"
+                           path=["text","title"]
+                           on-array-item-changed="{{annotationsChanged}}">
+      </observe-array-items>-->
+     
      
       <!--core elements: loaders, etc-->
       <usco-client-deps> </usco-client-deps>
@@ -119,10 +250,37 @@ on-mousewheel="{{onMouseWheel}}" on-DOMMouseScroll="{{onMouseWheel}}" on-dragove
       </usco-asset-manager>
       
       <!--AutoSaving settings to localstorage-->
-      <core-localstorage name="ultiviewer-settings-showGrid"   value="{{showGrid}}"></core-localstorage>
-      <core-localstorage name="ultiviewer-settings-showAxes"   value="{{showAxes}}"></core-localstorage>
-      <core-localstorage name="ultiviewer-settings-autoRotate" value="{{autoRotate}}"></core-localstorage>    
-      <core-localstorage name="ultiviewer-settings-showControls"   value="{{showControls}}"></core-localstorage>
+      <core-localstorage name="ultiviewer-settings-showGrid"    value="{{showGrid}}"></core-localstorage>
+      <core-localstorage name="ultiviewer-settings-showAxes"    value="{{showAxes}}"></core-localstorage>
+      <core-localstorage name="ultiviewer-settings-autoRotate"  value="{{autoRotate}}"></core-localstorage>    
+      <core-localstorage name="ultiviewer-settings-showControls"value="{{showControls}}"></core-localstorage>
+      <core-localstorage name="ultiviewer-settings-selectionZoom"value="{{selectionZoom}}"></core-localstorage>
+      
+      <core-localstorage name="ultiviewer-settings-showBOM"     value="{{showBOM}}"></core-localstorage>
+      
+      <core-localstorage name="ultiviewer-settings-activeTool" value="{{activeTool}}"></core-localstorage>
+      
+      <core-localstorage name="ultiviewer-settings-showAnnotations"value="{{showAnnotations}}"></core-localstorage>
+      <!--<core-localstorage name="ultiviewer-data-annotations"     value="{{annotations}}"></core-localstorage>-->
+      
+      <!--FIXME: for testing -->     
+      <core-localstorage name="[[appInfos.ns]]"     value="{{appSettings}}"></core-localstorage>
+      
+      <!--keboard handling: FIXME: do this better-->
+      
+      <core-a11y-keys  keys="m" on-keys-pressed="{{toTranslateMode}}"></core-a11y-keys>
+      <core-a11y-keys  keys="r" on-keys-pressed="{{toRotateMode}}"></core-a11y-keys>
+      <core-a11y-keys  keys="s" on-keys-pressed="{{toScaleMode}}"></core-a11y-keys>
+      <core-a11y-keys  keys="ctrl+d" on-keys-pressed="{{duplicateObject}}"></core-a11y-keys>
+      <core-a11y-keys  keys="del" on-keys-pressed="{{deleteObject}}"></core-a11y-keys>
+      <core-a11y-keys  keys="F11" on-keys-pressed="{{handleFullScreen}}"></core-a11y-keys>
+      
+      <core-a11y-keys  keys="ctrl+z" on-keys-pressed="{{undo}}"></core-a11y-keys>
+      <core-a11y-keys  keys="ctrl+shift+z" on-keys-pressed="{{redo}}"></core-a11y-keys>
+      
+      <!--for mac -->
+      <core-a11y-keys  keys="meta+z" on-keys-pressed="{{undo}}"></core-a11y-keys>
+      <core-a11y-keys  keys="meta+shift+z" on-keys-pressed="{{redo}}"></core-a11y-keys>
       
   </template>
   <script src="ulti-viewer.js"></script>

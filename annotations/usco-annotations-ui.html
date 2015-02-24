@@ -1,0 +1,101 @@
+<link rel="import" href="../components/polymer/polymer.html">
+
+<polymer-element name="usco-annotations-ui" attributes="activeTool" extends="usco-annotations">
+  <template>
+     <core-selector selected="{{activeTool}}" valueattr="value" on-core-activate="{{controlActivated}}">
+         <tooltip-shadow-button label="distance" value="distance" icon="settings-ethernet" >
+         </tooltip-shadow-button>
+      
+         <tooltip-shadow-button label="thickness" value="thickness" icon="editor:vertical-align-center" 
+         style="position: absolute;left: 40px; top: 0px;">
+         </tooltip-shadow-button>
+         
+         <tooltip-shadow-button label="angle" value="angle" icon="device:signal-wifi-4-bar" 
+         style="position: absolute;left: 80px; top: 0px;">
+         </tooltip-shadow-button>
+         
+         <tooltip-shadow-button label="diameter" value="diameter" icon="add-circle-outline" 
+         style="position: absolute;left: 120px; top: 0px;">
+         </tooltip-shadow-button>
+         
+         <tooltip-shadow-button label="note" value="note" icon="note-add" 
+         style="position: absolute;left: 160px; top: 0px;">
+         </tooltip-shadow-button>
+     </core-selector>
+  </template>
+  <!-- 
+    <ui-base>
+    <core-tooltip label="Measures" position="bottom">
+      <x-trigger icon="settings-ethernet" >
+        <paper-dropdown class="open-below" halign="right">
+          <div class="menu" > 
+            <core-selector selected="{{activeTool}}" valueattr="value">
+              <paper-item noink>
+                <core-icon style="padding-right:8px" icon="clear"></core-icon>
+                Nothing
+              </paper-item>
+              <paper-item value="distance" noink>
+                <core-icon style="padding-right:8px" icon="settings-ethernet"></core-icon>
+                Distance 
+              </paper-item>
+              <paper-item value="thickness" noink>
+                <core-icon style="padding-right:8px" icon="unfold-less"></core-icon>
+                Thickness 
+              </paper-item>
+              <paper-item value="angle" noink>
+                <core-icon style="padding-right:8px" icon="query-builder"></core-icon>
+                Angle
+              </paper-item>
+              <paper-item value="diameter" noink>
+                <core-icon style="padding-right:8px" icon="social:circles-add"></core-icon>
+                Diameter
+              </paper-item>
+              <paper-item value="note" noink>
+                <core-icon style="padding-right:8px" icon="note-add"></core-icon>
+                Note
+              </paper-item>
+
+           </div>
+         </paper-dropdown>
+      </x-trigger>
+      </core-tooltip>
+     </ui-base>
+  </template>-->
+<script>
+Polymer("usco-annotations-ui",{
+  activeTool:null,
+  _tools: ["distance","thickness","angle","diameter","note"],
+  _prevTool:null,
+  
+  //FIXME: not sure:
+  //persistable options
+  showAnnotations:true,
+  //event handlers
+  controlActivated:function(e, detail){
+    //this is used to toggle a specific control on/off
+    //FIXME: there must be a cleaner way to to this...
+    var nValue = detail.item.attributes[1].value;
+    //console.log("nValue",nValue, this._prevTool);
+    if( nValue === this._prevTool)
+    {
+      this.activeTool = null;
+    }else{
+      this._prevTool = nValue;
+    }
+  },
+  //attribute change callbacks
+  activeToolChanged:function(oldTool, newTool){
+    //console.log("this.mode", this.activeTool, oldTool, newTool);
+    this._prevTool = oldTool;
+
+    var tools = this._tools;
+    //IF activetool is an annotation tool , forcefully show annotations
+    if(tools.indexOf(this.activeTool) > -1 ){ 
+      this.showAnnotations = true;
+    }
+    
+  },
+});
+</script>
+</polymer-element>
+

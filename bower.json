@@ -1,14 +1,15 @@
 {
   "name": "usco-ultiviewer",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "webcomponentsjs": "Polymer/webcomponentsjs#~0.4.2",
+    "webcomponentsjs": "Polymer/webcomponentsjs#~0.5.5",
     "polymer": "Polymer/polymer#master",
-    "polymer-gestures": "Polymer/polymer-gestures",
+    "polymer-gestures": "kaosat-dev/polymer-gestures#~0.5.1",
     "core-localstorage": "Polymer/core-localstorage",
-    "three-js": "usco/three-js",
-    "three-js-helpers": "usco/three-js-helpers",
+    "core-selection": "Polymer/core-selection",
+    "three-js": "usco/three-js#master",
+    "three-js-helpers": "usco/three-js-helpers#master",
     "tween-js": "usco/tween-js",
     "usco-asset-manager": "usco/usco-asset-manager#master",
     "usco-client-deps": "usco/usco-client-deps#master",
@@ -18,10 +19,27 @@
     "usco-stl-parser": "usco/usco-stl-parser#master",
     "usco-amf-parser": "usco/usco-amf-parser#master",
     "usco-ply-parser": "usco/usco-ply-parser#master",
-    "usco-obj-parser": "usco/usco-obj-parser#master"
+    "usco-obj-parser": "usco/usco-obj-parser#master",
+    "usco-command-manager": "usco/usco-command-manager",
+    "paper-dropdown": "Polymer/paper-dropdown#~0.5.5",
+    "paper-checkbox": "Polymer/paper-checkbox#~0.5.5",
+    "core-selector": "Polymer/core-selector#~0.5.5",
+    "core-tooltip": "Polymer/core-tooltip#~0.5.5",
+    "paper-menu-button": "Polymer/paper-menu-button#~0.5.5",
+    "core-a11y-keys": "Polymer/core-a11y-keys#~0.5.5",
+    "paper-shadow": "Polymer/paper-shadow#~0.5.5",
+    "core-menu": "Polymer/core-menu#~0.5.5",
+    "paper-item": "Polymer/paper-item#~0.5.5",
+    "usco-ui-mixins": "usco/usco-ui-mixins",
+    "paper-progress": "Polymer/paper-progress#~0.5.5",
+    "paper-input": "Polymer/paper-input#~0.5.5",
+    "js-quantities": "~1.5.0",
+    "paper-dialog": "Polymer/paper-dialog#~0.5.5",
+    "nested-observe": "~1.2.1"
   },
   "resolutions": {
-    "webcomponentsjs": "master",
-    "polymer": "master"
+    "polymer-gestures": "master",
+    "webcomponentsjs": "^0.5",
+    "polymer": "^0.5"
   }
 }

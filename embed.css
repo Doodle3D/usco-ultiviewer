@@ -1,4 +1,45 @@
+ulti-viewer {
+  font-family: 'Open Sans', sans-serif;
+
+}
+
 ulti-viewer :unresolved:after{padding:15px;content:'loading...';color:#ccc;}
+
+
+ulti-viewer /deep/ #naviView{
+  position:absolute;
+  left:10px;
+  bottom:10px;
+  width:150px;
+  height:150px;
+  z-index: 11;
+  -webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	
+	/*background-color: #F0F;*/
+	background-color:#f5f5f5;
+	opacity: 0;
+	/*pointer-events: none;*/
+	
+	/*background:white; opacity:0; filter:Alpha(opacity=0);*/
+}
+
+ulti-viewer /deep/ #perspectiveView{
+  background-color:#f5f5f5;
+  /*background-color: rgba(255, 0, 0, 1);*/
+  /*background-color: #F00;*/
+  opacity: 0;
+}
+/*
+Colors:
+blue:#4ebcf6
+darkblue : #2e7396
+orangeYellow:#ffd200;
+*/
 
 /*ulti-viewer:-webkit-full-screen 
   {
@@ -7,19 +48,241 @@ ulti-viewer :unresolved:after{padding:15px;content:'loading...';color:#ccc;}
     left:0px !important;
     top:0px !important;
   } */
+  
+/*fix for scrollbars*/
+ulti-viewer /deep/ core-menu {
+    overflow: hidden !important;
+}  
+
+ulti-viewer /deep/ paper-item {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+/* all hovered paper-icon-buttons regardless of depth are getting this style*/
+/*ulti-viewer /deep/ paper-icon-button{
+vertical-align: middle;
+}*/
+
+/*custom ui elements*/
+ulti-viewer /deep/ ui-base.core-selected /deep/ paper-icon-button{
+  background:  #ffd200;
+  color:white;
+}
+
+ulti-viewer /deep/ tooltip-shadow-button.core-selected /deep/ paper-icon-button{
+  background:  #ffd200;
+  color:white;
+}
+
+
+ulti-viewer /deep/ tooltip-dropdown-button.core-selected /deep/ x-trigger{
+  background:  #ffd200;
+  color:white;
+}
+
+ulti-viewer /deep/ tooltip-dropdown-button /deep/ #dropDownArrow{
+  color:#4ebcf6;
+  position:absolute;
+  bottom:-5px;
+  right:-6px;
+  z-index: 10;
+}
+
+
+
+
+/*other , styling for ui elements*/
+ulti-viewer /deep/ paper-icon-button:hover{
+  color:white;
+  background: #ffd200;
+}  
+
+ulti-viewer /deep/ paper-item {
+      color:black;
+      font-size: 0.8em;
+      font-weight: 400;
+      /*width:150px;*/
+      height:40px;
+}  
+
+ulti-viewer /deep/ paper-item::shadow .button-content{
+      /*color:green;*/
+      height: 20px;
+} 
+
+
+ulti-viewer /deep/ paper-checkbox::shadow #ink[checked]{
+  color: #BBDEFB;
+}
+
+ulti-viewer /deep/ paper-checkbox::shadow #checkbox.checked {
+  border-color: #ffd200;
+  background-color:#ffd200;
+}
+  
+ulti-viewer /deep/ x-trigger:hover {
+  background: #ffd200;
+}  
+ulti-viewer /deep/ x-trigger:hover::shadow core-icon{
+  color:white;/*black*/
+}
+  
+ulti-viewer /deep/ x-trigger /deep/ paper-dropdown:not(.no-padding)::shadow #scroller {
+      box-sizing: border-box;
+      /*padding: 8px;*/
+      color:blue;
+    }
+
+ulti-viewer /deep/ x-trigger /deep/ paper-dropdown::shadow #scroller {
+      box-sizing: border-box;
+      padding: 8px;
+      /*color:red;*/
+    }
+    
+ulti-viewer /deep/ x-trigger /deep/ paper-item {
+      color:black;
+      font-size: 0.8em;
+      font-weight: 400;
+}  
+
+ulti-viewer /deep/ x-trigger /deep/ paper-item:hover {
+      color:#4ebcf6;
+}  
+
+
+ulti-viewer /deep/ x-trigger /deep/ paper-item.core-selected {
+      background:#ffd200;
+      color:black;
+}  
+
+
+
+ulti-viewer /deep/ x-trigger /deep/ paper-item::shadow .button-content{
+      /*color:green;*/
+      height: 20px;
+} 
+    
+ulti-viewer /deep/ x-trigger /deep/ .open-below {
+      top: 38px;
+}
+
+    
+ulti-viewer /deep/ core-tooltip::shadow #tooltip {
+  z-index: 0;
+}
+
+/*Top icons*/
+ulti-viewer::shadow #infos{
+  position:absolute;top:5px;right:20px;z-index:15;
+}    
+
+ulti-viewer::shadow #options{
+  position:absolute;top:5px;right:60px;z-index:15;
+}    
+
+ulti-viewer::shadow #annotations{
+  position:absolute;top:5px;right:340px;z-index:15; /*100px*/
+}
+
+ulti-viewer::shadow #transforms{
+  position:absolute;top:5px;left:300px;z-index:15;
+}
+
+ulti-viewer::shadow #bomUI{
+  position:absolute;top:5px;right:100px;z-index:15;
+}
+
+
+ulti-viewer::shadow #objProps{
+  position:absolute;bottom:0px;left:0px;z-index:15;
+  height: 25px;
+  width: 100%;
+  background-color:#f5f5f5; /*background:white;*/
+  font-size: 0.8em;
+  
+}
+
+ulti-viewer::shadow #objProps /deep/ input[type="number"]{
+  max-width: 50px;
+  border: none;
+  /* height: 0.5em; */
+  line-height: 0.8em;
+  font-size: 0.8em;
+  font-family: inherit;
+}
+
+ulti-viewer::shadow #objProps /deep/ input[type="color"]{
+border: none;
+padding: 0px;
+margin: 0px;
+width: 18px;
+height: 15px;
+}
+
+ulti-viewer::shadow #gridProps{
+  position:absolute;bottom:0px;right:80px;z-index:15;
+  height: 25px;
+  width: 200;
+  font-size: 0.8em;
+}
+
+ulti-viewer::shadow #gridProps /deep/ select{
+background: rgba(255, 255, 255, 0);
+border: white;
+}
+
+
+ulti-viewer::shadow #history{
+  position:absolute;top:5px;left:380px;z-index:15;background:white;
+  display: inline-block
+}
+
+
+ulti-viewer::shadow #inputOutput{
+  position:absolute;top:5px;left:180px;z-index:15;
+
+}
+
+ulti-viewer::shadow #toolBar{
+  width:100%;
+  height:45px;
+  position:absolute;
+  left:0px;
+  z-index:14;
+}
+
+/*styling of 3d elements using css*/
+ulti-viewer /deep/ dimensions-helper-group /deep/ distance-helper{
+  color:red;
+  background-color:#ffd200;
+}
+
+ulti-viewer /deep/ dimensions-helper-group /deep/ diameter-helper{
+  color:#000;
+  background-color:blue;
+}
+
+ulti-viewer /deep/ three-js{
+
+  cursor:default;
+}
+
+/*overlay notes styling*/
 
 ulti-viewer /deep/ overlay-note {
-z-index:16;
+z-index:11;
 width:20px;
 height:20px;
 border-radius: 50%;
 position:absolute;
-background: #494949;
-color:white;
+background: #ffd200;/*#494949;*/
+color: black;/*white;*/
 cursor:pointer;
-font-size:14px;
+font-size:13px;
 font-weight:bold;
-border: 1px solid #FFEAEA;
+border: 1px solid; /*#FFEAEA;*/
 }
 
 ulti-viewer /deep/ overlay-note /deep/ h1{
@@ -32,21 +295,22 @@ ulti-viewer /deep/ overlay-note /deep/ span{
 text-align: center;
 display: block;
 line-height: 20px;
+font-size:16px;
 }
 
 ulti-viewer /deep/ overlay-note:hover /deep/ span{
-  color:#4ebcf6;
+  color: #494949;/*#4ebcf6;*/
 }
 
 
 ulti-viewer /deep/ overlay-note /deep/ .annotationContent{
   width: 200px;
-  background: #494949;
+  background: #ffd200;/*#494949;*/
   padding: 6px;
   position: absolute;
   left: 28px;
   top: 0px;
-  font-weight: 100;
+  font-weight: 300;
   
   
   -webkit-transition: opacity .15s ease-in-out;
@@ -77,7 +341,7 @@ ulti-viewer /deep/ overlay-note /deep/ .annotationContent:after, ulti-viewer /de
 	position: absolute;
 	pointer-events: none;
 	border-color: rgba(39, 53, 61, 0);
-	border-right-color: #494949;
+	border-right-color: #ffd200;/*#494949;*/
 	border-width: 8px;
 	margin-top: -8px;
 }
@@ -100,6 +364,7 @@ margin: 0 auto;padding:0;
 background:white;
 }
 
+/*TODO:remove*/
 ulti-viewer /deep/ progress-text {
   background:white;
   width: 100%;
@@ -109,6 +374,35 @@ ulti-viewer /deep/ progress-text {
   margin-right: auto;
   z-index:14;
   text-align:center;
+}
+
+ulti-viewer /deep/ progress-bar {
+  position:absolute;
+  z-index:16;
+  left:0px;top:0px;right:0px;
+  height:4px;
+  /*text-align:center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;*/
+}
+
+ulti-viewer /deep/ progress-bar /deep/ paper-progress{
+  position:absolute;
+  left:0px;top:0px;bottom:0px;right:0px;
+  width:100%
+}
+
+ulti-viewer /deep/ progress-bar /deep/ core-tooltip{
+  width:100%;
+}
+
+ulti-viewer /deep/ paper-progress::shadow #activeProgress {
+  background-color: #e91e63;
+}
+
+ulti-viewer /deep/ paper-progress::shadow #progressContainer {
+  background-color: #ffffff;
 }
 
 /*for camera controls*/
@@ -174,53 +468,57 @@ ulti-viewer /deep/ view-settings {
   overflow:hidden;z-index:15;pointer-events:all;
 }
 
-ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]{
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type=checkbox]{
   display: none;
 }
 
-
-ulti-viewer /deep/ view-settings /deep/ .viewSettings{
+ulti-viewer /deep/ fullscreen-toggler /deep/ .viewSettings{
   width:30px;
 }
 
 
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]{display:none;}
-/*ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{content:"\f066";}*/
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{content:"";}
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]{display:none;}
+/*ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]:checked+label:before{content:"\f066";}*/
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]:checked+label:before{content:"";}
 
-ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]+label>span{display:none;}
-ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]+label>span{
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type=checkbox]+label>span{display:none;}
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type=checkbox]+label>span{
   text-align:right;margin-left:20px;
 }
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]+label{
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]+label{
 background:#494949;color:white;height:16px;width:16px;display:inline-block;padding:0px;text-align:center;line-height:16px;
 margin:1px;
 margin-left: 5px;
 }
 
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label{
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]:checked+label{
 background:#17a9f5;color:white;height:16px;width:16px;display:inline-block;padding:0px;text-align:center;line-height:16px;
 }
 
 /*
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]+label:before{
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]+label:before{
 font-family:'FontAwesome';font-size:12px;content:"\f10c";}
 
-ulti-viewer /deep/ view-settings /deep/ input[type="checkbox"]:checked+label:before{font-family:'FontAwesome';font-size:12px;content:"\f111";color:#17a9f5;}*/
+ulti-viewer /deep/ fullscreen-toggler /deep/ input[type="checkbox"]:checked+label:before{font-family:'FontAwesome';font-size:12px;content:"\f111";color:#17a9f5;}*/
 
 
 /*fullscreen button*/
-
-ulti-viewer /deep/ view-settings /deep/ input.fullScreen[type=checkbox]+label{
-  position:absolute;
-  bottom:20px;
-  margin:0px;
+ulti-viewer /deep/ fullscreen-toggler{
+  position: absolute;
+  bottom: 20px;
+  z-index: 15;
+  right: 20px;
+  margin: 0px;
 }
-ulti-viewer /deep/ view-settings /deep/ input.fullScreen[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}
 
-ulti-viewer /deep/ view-settings /deep/ input.fullScreen[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}
-ulti-viewer /deep/ view-settings /deep/ input.fullScreen[type="checkbox"]+label:hover:before{color:#4ebcf6;}
-ulti-viewer /deep/ view-settings /deep/ input.fullScreen[type="checkbox"]+label:before{color:#fff;font-family:'FontAwesome';font-size:18px;content:"\f0b2";}
+ulti-viewer /deep/ fullscreen-toggler /deep/ input.fullScreen[type=checkbox]+label{
+ 
+}
+ulti-viewer /deep/ fullscreen-toggler /deep/ input.fullScreen[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}
+
+ulti-viewer /deep/ fullscreen-toggler /deep/ input.fullScreen[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}
+ulti-viewer /deep/ fullscreen-toggler /deep/ input.fullScreen[type="checkbox"]+label:hover:before{color:#4ebcf6;}
+ulti-viewer /deep/ fullscreen-toggler /deep/ input.fullScreen[type="checkbox"]+label:before{color:#fff;font-family:'FontAwesome';font-size:18px;content:"\f0b2";}
 
 
 /*ulti-viewer /deep/ view-settings /deep/ input[type=checkbox]+label{background:#494949;height:29px;width:29px;display:inline-block;line-height:30px;text-align:center;}*/

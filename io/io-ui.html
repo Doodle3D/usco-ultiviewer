@@ -1,0 +1,137 @@
+<link rel="import" href="../components/polymer/polymer.html">
+
+<script src="SceneSerializer.js"></script>
+<script src="scene-parser.js"></script>
+<script src="FileSaver.min.js"></script>
+
+<polymer-element name="io-ui" attributes="selectedObject resources activeScene viewer partWaiters parts">
+  <template>
+    <section>
+       <tooltip-shadow-button label="save scene" value="saveScene" icon="save" on-tap="{{saveSceneHandler}}" >
+       </tooltip-shadow-button>
+       <tooltip-shadow-button label="load scene" value="loadScene" icon="folder-open" on-tap="{{loadSceneHandler}}" 
+       style="position: absolute;left: 40px; top: 0px;">
+       </tooltip-shadow-button>
+       
+    </section> 
+  </template>
+<script>
+Polymer("io-ui",{
+  activeScene:null,
+  
+  //custom element lifecycle callbacks
+  ready:function(){
+    this.sceneSerializer = new SceneSerializer();
+    this.sceneParser     = new SceneParser();
+  },
+  //event handlers
+  saveSceneHandler:function( event ){
+    console.log("saving the scene");
+    console.log("Resources", this.resources);
+    console.log("PartWaiters", this.partWaiters);
+    console.log("Parts", this.parts);
+    console.log("activeScene",this.activeScene);
+    
+    var assembly = 
+      [
+        {
+        "id":"0",
+        "children":[]
+        }
+      ]
+    
+    
+    this.activeScene.traverse(function( node ){
+      var isPartInstance = node.userData.part !== undefined ? true : false;
+      if(isPartInstance){
+        console.log("node is a part instance", node, node.userData.part.id);
+        //entityId??? partId???
+        var instance = {"partId":node.userData.part.id,p:null,r:null,s:null};
+        instance.p = node.position.toArray();
+        instance.r = node.rotation.toArray();
+        instance.s = node.scale.toArray();
+        
+        assembly[0]["children"].push( instance );
+      }
+    });
+    
+    console.log(assembly);
+    var sceneOutput = assembly;
+    /*console.log("resources",this.resources);
+    //var sceneOutput = this.sceneSerializer.serialize( this.activeScene );
+    console.log(sceneOutput);*/
+    var sceneTextOutput =  JSON.stringify( sceneOutput );
+    console.log( sceneTextOutput );
+    var blob = new Blob([sceneTextOutput], {type: "application/json;charset=utf-8"});
+    //saveAs(blob, "testScene.json");
+  },
+  loadSceneHandler:function( event ){
+    console.log("loading the scene");
+    this.viewer.clearScene("main");
+    //TODO: how to integrate into asset manager ?
+    //"http://localhost:8080/demo-data/testScene.json"
+    
+    //FIXME: remove this, this is just for testing
+    var rawJson = '[{"id":"0","children":[{"partId":1377254961,"p":[29.969436900412823,28.529750606822443,7.000000476837158],"r":[0,0,0,"XYZ"],"s":[1,1,1]},{"partId":-978329831,"p":[-16.90067109589331,-24.340438789910863,8.000000953674316],"r":[0,0,0,"XYZ"],"s":[1,1,1]}]}]';
+    var parsed = JSON.parse( rawJson );
+    console.log("parsed", parsed);
+    
+    
+    
+    //FIXME: hack, for now assume only one assembly
+    var assembly = parsed[0];
+    var self = this;
+    
+    for(var i= 0; i<assembly.children.length;i++)
+    {
+      function outer(ii){
+        var current = assembly.children[ii];
+        var partId = current.partId;
+        
+        
+        var partEntry = self.partWaiters[ partId ];
+        if(!partEntry ) throw new Error( "unable to load part :"+ partId );
+        
+        partEntry.promise.then( function( mesh ) {
+          mesh.position.set(0,0,0);
+          mesh.rotation.set(0,0,0);
+          mesh.scale.set(1,1,1);
+
+          mesh.updateMatrix();
+        
+          if( current.p ) mesh.position.copy( new THREE.Vector3().fromArray( current.p ) );
+          if( current.r ) mesh.rotation.fromArray( current.r );
+          if( current.s ) mesh.scale.fromArray( current.s );
+          
+          console.log("mesh ready", mesh, self.viewer.threeJs );
+          
+          var scene = self.viewer.scenes["main"];
+          scene.add( mesh );
+          //self.viewer.addToScene( mesh, "main" );
+          
+          //mesh.updateMatrix();
+          //mesh.updateMatrixWorld();
+        });
+      }
+      
+      outer( i );
+    }
+    
+    //this.sceneParser.parse( rawJson );
+  },
+  //attribute change handlers
+  activeSceneChanged:function(){
+    //console.log("activeSceneChanged",this.activeScene);
+  },
+  selectedObjectChanged:function(){
+    //console.log("selectedObject",this.selectedObject);
+  },
+  //helpers
+  //FIXME: needs to be external, already defined twice
+  hashCode: function(s){
+    return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+  }
+});
+</script>
+</polymer-element>
+

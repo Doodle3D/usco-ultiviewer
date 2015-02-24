@@ -7,18 +7,20 @@
 
       <!--for testing only-->
       <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-
+      <!--<link href='//fonts.googleapis.com/css?family=RobotoDraft:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en' rel='stylesheet' type='text/css'>-->
+      <link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,800italic,700,300,400' rel='stylesheet' type='text/css'>
 
       <!-- styling example, as it would appear in a website-->
-      <link rel="stylesheet" type="text/css" href="embed.css">
+      <link rel="stylesheet" type="text/css" href="embed.css" shim-shadowdom>
 
-
+      <meta name="viewport" content="width=device-width, initial-scale=1">
       <style>
          html, body, ulti-viewer{
       margin: 0;
       position: absolute;
       height: 100%;
       width:100%;
+             /*font-family: 'RobotoDraft', sans-serif;*/
         
        -webkit-touch-callout: none;
 		  -webkit-user-select: none;
@@ -30,37 +32,43 @@
       </style>
   </head>
 <body>
-  <ulti-viewer></ulti-viewer>
+  <ulti-viewer disabled></ulti-viewer>
 
   <script>
       window.addEventListener('polymer-ready', function() {
         var ultiViewer = document.querySelector('ulti-viewer');
-        console.log("ultiViewer",ultiViewer);
+        //console.log("ultiViewer",ultiViewer);
         
         var currentUrl = window.location.origin;
         var modelUrl = "https://s3-eu-west-1.amazonaws.com/files.youmagine.com/uploads/document/file/1078/Extruder_Big_Gear_V1.stl";
-        modelUrl = currentUrl+"/demo-data/UM2CableChain_BedEnd.STL";
+        //modelUrl = currentUrl+"/demo-data/UM2CableChain_BedEnd.STL";
         //modelUrl = currentUrl+"/demo-data/cube.stl";
         //modelUrl = "https://foobarbqsd/vr_V1.stl";
         //modelUrl = currentUrl+"/demo-data/Constellation.amf";
         
         var annotations = [
-          {partId:0 , type:"point", title:"Goomba",text:"Interesting", position:[20,32,3], orientation:[0,0,1], author:"xxx", link:""},
-          {partId:0 ,type:"point", title:"Crux",text:"This is some trully remarquable engineering!", position:[-20,-16,6],orientation:[0,0,1], author:"exa", link:""},
+          {partId:0 , type:"note", title:"Goomba",text:"Interesting", position:[20,32,3], orientation:[0,0,1], author:"xxx", link:""},
+          {partId:0 ,type:"note", title:"Crux",text:"This is some trully remarquable engineering!", position:[-20,-16,6],orientation:[0,0,1], author:"exa", link:""},
         ];
         
-        ultiViewer.annotations = annotations;
+        //ultiViewer.annotations = annotations;
         
-        setTimeout(function(){
+        
+        /*setTimeout(function(){
           ultiViewer.loadMesh(modelUrl,{display:true}).then(function(){
-         
-          //FIXME: hack, this is needed right now because meshes don't have adequate
-          //metadata 
-          ultiViewer.selectedObject.userData.part = {};
-          ultiViewer.selectedObject.userData.part.id = 0;
-          
+            //FIXME: hack, this is needed right now because meshes don't have adequate
+            //metadata 
+            //ultiViewer.selectedObject.userData.part = {};
+            //ultiViewer.selectedObject.userData.part.id = 0;
           });
-        },1000 );
+          ultiViewer.loadMesh(currentUrl+"/demo-data/UM2CableChain_ChainSegment.STL",{display:true}).then(function(){
+            //FIXME: hack, this is needed right now because meshes don't have adequate
+            //metadata 
+            //ultiViewer.selectedObject.userData.part = {};
+            //ultiViewer.selectedObject.userData.part.id = 1;
+          });
+          
+        },1000 );*/
         
     });
   </script>  

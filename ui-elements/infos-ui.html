@@ -1,0 +1,42 @@
+<link rel="import" href="../components/polymer/polymer.html">
+
+<polymer-element name="infos-ui" attributes="measureType">
+  <template>
+    <ui-base>
+      <core-tooltip label="infos" position="bottom">  
+          <x-trigger icon="info-outline" >
+            <paper-dropdown class="open-below" halign="right">
+              <div class="menu" > 
+                <paper-item noink disabled>
+                  <b> Information:</b>
+                </paper-item>
+                  <div style="color: rgb(120, 120, 120);font-size:0.8em">
+                    Left mouse: select/interact<br>
+                    Right mouse: rotate<br>
+                    Mouse wheel : zoom in/out<br>
+                    Double tap : zoom in on object/point<br>
+                  </div>
+                <paper-item noink disabled>
+                  <div>
+                    Ulti-viewer version : 0.0.2
+                  </div>
+                </paper-item>
+               </div>
+             </paper-dropdown>
+          </x-trigger>
+          <!--
+          <paper-menu-button>
+            <paper-icon-button icon="info-outline" noink></paper-icon-button>
+            <paper-dropdown class="dropdown">
+             
+            </paper-dropdown>
+          </paper-menu-button>-->
+       </core-tooltip>
+     </ui-base>
+  </template>
+<script>
+Polymer("infos-ui",{
+});
+</script>
+</polymer-element>
+

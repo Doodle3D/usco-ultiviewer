@@ -1,0 +1,53 @@
+<link rel="import" href="../components/polymer/polymer.html">
+
+<link rel="import" href="../components/usco-command-manager/command-manager-base.html">
+
+<polymer-element name="history-ui" attributes="" extends="history-editor-base">
+  <template>
+    <section style="display: inline-block">
+         <!--TODO: dropdown-->
+           <tooltip-shadow-button label="undo" icon="undo" disabled?="{{ undos.length === 0}}"
+           style="position: absolute;left: 200px; top: 0px;"
+           on-tap="{{reqUndo}}" on-holdpulse="{{reqUndo}}"> 
+           
+            <paper-dropdown>
+              <template repeat="{{undo in undos}}">
+                {{undo.type}}<br>
+              </template>
+            </paper-dropdown>
+           
+           </tooltip-shadow-button>
+           
+           <tooltip-shadow-button label="redo" icon="redo" disabled?="{{ redos.length === 0 }}"
+           style="position: absolute;left: 240px; top: 0px;"
+           on-tap="{{reqRedo}}" on-holdpulse="{{reqRedo}}"> 
+           
+            <paper-dropdown>
+              <template repeat="{{redo in redos}}">
+                {{redo.type}}<br>
+              </template>
+            </paper-dropdown>
+           
+           </tooltip-shadow-button>
+    </section> 
+  </template>
+<script>
+Polymer("history-ui",{
+  /*undo/redo is supported both in a discrete manner(one click : one undo or one redo),
+  or HOLD to undo/redo multiple steps*/
+  reqUndo:function(event){
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+    event.preventDefault();
+    this.undo();
+  },
+  reqRedo:function(event){
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+    event.preventDefault();
+    this.redo();
+  },
+});
+</script>
+</polymer-element>
+
